@@ -42,18 +42,48 @@ namespace Client
 
         private async void Login_Click(object sender, RoutedEventArgs e)
         {
-            string? content = ((sender as Button)).Content.ToString();
-            if(content == "Войти")
-            {
+            string? content = (sender as Button).Content.ToString();
 
+            if (content == "Войти")
+            {
+                if (loginTextBox.Text.Length >= 6)
+                {
+                    if (passwordTextBox.Password.Length >= 6)
+                    {
+                        loginGrid.Opacity = 0.3;
+                        ApplyBlurEffect(loginGrid, 15);
+                        viewModel.IsLoading = true;
+
+                        string login = loginTextBox.Text;
+                        string password = passwordTextBox.Password;
+                        bool result = await Task.Run(() => IsUserDataSuccess(login, password));
+
+                        if (result)
+                        {
+                            loginGrid.Opacity = 1.0;
+                            loginGrid.Effect = null;
+                            viewModel.IsLoading = false;
+
+                            MessageBox.Show("Успешный вход");
+                        }
+                        else
+                        {
+                            loginGrid.Opacity = 1.0;
+                            loginGrid.Effect = null;
+                            viewModel.IsLoading = false;
+
+                            MessageBox.Show("Не удалось войти");
+                        }
+                    }
+                }
             }
             else
             {
-                if(loginTextBox.Text.Length >= 6) 
+                if (loginTextBox.Text.Length >= 6)
                 {
-                    if(passwordTextBox.Password.Length >= 6)
+                    if (passwordTextBox.Password.Length >= 6)
                     {
-                        if(passwordTextBox.Password == passwordAcceptTextBox.Password)
+                        if (passwordTextBox.Password == passwordAcceptTextBox.Password)
                         {
                             loginGrid.Opacity = 0.3;
                             ApplyBlurEffect(loginGrid, 15);
@@ -103,6 +133,19 @@ namespace Client
                 using(var db = new DatabaseContext())
                 {
                     return db.IsLoginExist(login);
+                }
+            }
+            catch { }
+            return false;
+        }
+
+        async Task<bool> IsUserDataSuccess(string login, string password)
+        {
+            try
+            {
+                using (var db = new DatabaseContext())
+                {
+                    return db.IsUserDataSuccess(login, password);
                 }
             }
             catch { }

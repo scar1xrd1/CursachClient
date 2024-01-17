@@ -29,6 +29,19 @@ namespace Client.Images
             return false;
         }
 
+        public bool IsUserDataSuccess(string login, string password)
+        {
+            if (Users != null && Users.Count() >= 1)
+            {
+                var user = Users.FirstOrDefault(u => u.Login == login);
+
+                if (user != null && PasswordHasher.VerifyPassword(user.Password, password, user.PasswordSalt)) return true;
+                else return false;
+            }
+            return false;
+        }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
