@@ -43,6 +43,7 @@ namespace Client
         private void TextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         { 
             viewModel.LabelContent = viewModel.LabelContent == "Регистрация" ? "Вход" : "Регистрация";
+            viewModel.ButtonContent = viewModel.ButtonContent == "Войти" ? "Зарегистрироваться" : "Войти"; 
             viewModel.PasswordAcceptVisibility = viewModel.PasswordAcceptVisibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
         }
     }

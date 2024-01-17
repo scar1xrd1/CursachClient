@@ -10,14 +10,17 @@
 
   <ItemGroup>
     <None Remove="logo.png" />
+    <None Remove="snow.gif" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.10" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="logo.png" />
+    <Resource Include="snow.gif" />
   </ItemGroup>
 
 </Project>

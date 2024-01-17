@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:Controls="Client.Controls"
+        xmlns:wag="http://schemas.wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
         Title="CLIENT" Height="550" Width="1000" Background="#202020" Closing="Window_Closing"
         TitleForeground="#505050" ShowTitleBar="False" BorderThickness="0" GlowBrush="Black"
@@ -21,10 +21,43 @@
 
             <Style x:Key="BorderStyle" TargetType="Border">
                 <Setter Property="CornerRadius" Value="20"></Setter>
+                <Setter Property="BorderThickness" Value="4"></Setter>
+                <Setter Property="Background" Value="#252525"></Setter>
+                <Setter Property="BorderBrush" Value="#404040"></Setter>
+                <Setter Property="Margin" Value="5"></Setter>
             </Style>
+            
             <Style x:Key="ButtonStyle" TargetType="Button">
-
+                <Setter Property="Background" Value="#404040"></Setter>
+                <Setter Property="Foreground" Value="#e3e3e3"></Setter>
+                <Setter Property="FontWeight" Value="Medium"></Setter>
+                <Setter Property="FontSize" Value="15"></Setter>
+                <Setter Property="BorderThickness" Value="0"></Setter>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="20">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#505050"></Setter>
+                    </Trigger>
+                    <EventTrigger RoutedEvent="Button.Click">
+                        <EventTrigger.Actions>
+                            <BeginStoryboard>
+                                <Storyboard SpeedRatio="2">
+                                    <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="#808080" Duration="0:0:0.1" AutoReverse="True"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger.Actions>
+                    </EventTrigger>
+                </Style.Triggers>
             </Style>
+            
             <Style x:Key="TextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                 <Setter Property="BorderThickness" Value="0"></Setter>
                 <Setter Property="Margin" Value="7"></Setter>
@@ -38,26 +71,34 @@
                 <Setter Property="Background" Value="#0000"></Setter>
                 <Setter Property="FontSize" Value="20"></Setter>
             </Style>
+            
             <Style x:Key="TextBlockClickableStyle" TargetType="TextBlock">
-
+                <Setter Property="Foreground" Value="#0077b3"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Foreground" Value="#0097e3"></Setter>
+                    </Trigger>
+                </Style.Triggers>
             </Style>
         </ResourceDictionary>
     </mah:MetroWindow.Resources>
 
     <Grid>
+        
         <StackPanel VerticalAlignment="Center" Orientation="Horizontal" HorizontalAlignment="Center">
             <Image Width="300" Source="/logo.png"></Image>
             <StackPanel Width="300" VerticalAlignment="Center">
-                <Border BorderThickness="4" Margin="5" Background="#252525" BorderBrush="#404040"  Style="{StaticResource BorderStyle}">
+                <Border Style="{StaticResource BorderStyle}">
                     <TextBox x:Name="loginTextBox" mah:TextBoxHelper.Watermark="Логин" Style="{StaticResource TextBoxStyle}"></TextBox>
                 </Border>
-                <Border BorderThickness="4" Margin="5" Background="#252525" BorderBrush="#404040"  Style="{StaticResource BorderStyle}">
+                <Border Style="{StaticResource BorderStyle}">
                     <PasswordBox x:Name="passwordTextBox" mah:TextBoxHelper.Watermark="Пароль" Style="{StaticResource PasswordBoxStyle}"></PasswordBox>
                 </Border>
-                <Border Visibility="{Binding PasswordAcceptVisibility}" BorderThickness="4" Margin="5" Background="#252525" BorderBrush="#404040"  Style="{StaticResource BorderStyle}">
+                <Border Visibility="{Binding PasswordAcceptVisibility}" Style="{StaticResource BorderStyle}">
                     <PasswordBox x:Name="passwordAcceptTextBox" mah:TextBoxHelper.Watermark="Подтвердите пароль" Style="{StaticResource PasswordBoxStyle}"></PasswordBox>
                 </Border>
-                <TextBlock Text="{Binding LabelContent}" HorizontalAlignment="Center" Style="{StaticResource TextBlockClickableStyle}" Foreground="#0077b3" FontWeight="ExtraBlack" MouseLeftButtonUp="TextBlock_MouseLeftButtonUp"></TextBlock>
+                <Button Margin="5" Style="{StaticResource ButtonStyle}" Content="{Binding ButtonContent}" Height="50"></Button>
+                <TextBlock Text="{Binding LabelContent}" HorizontalAlignment="Center" Style="{StaticResource TextBlockClickableStyle}" FontWeight="ExtraBlack" MouseLeftButtonUp="TextBlock_MouseLeftButtonUp"></TextBlock>
             </StackPanel>            
         </StackPanel>
     </Grid>
