@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-        xmlns:wag="http://schemas.wpfanimatedgif.codeplex.com"
+        xmlns:wag="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
         Title="CLIENT" Height="550" Width="1000" Background="#202020" Closing="Window_Closing"
         TitleForeground="#505050" ShowTitleBar="False" BorderThickness="0" GlowBrush="Black"
@@ -27,7 +27,7 @@
                 <Setter Property="Margin" Value="5"></Setter>
             </Style>
             
-            <Style x:Key="ButtonStyle" TargetType="Button">
+            <Style TargetType="Button">
                 <Setter Property="Background" Value="#404040"></Setter>
                 <Setter Property="Foreground" Value="#e3e3e3"></Setter>
                 <Setter Property="FontWeight" Value="Medium"></Setter>
@@ -84,22 +84,24 @@
     </mah:MetroWindow.Resources>
 
     <Grid>
-        
-        <StackPanel VerticalAlignment="Center" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Image Width="300" Source="/logo.png"></Image>
-            <StackPanel Width="300" VerticalAlignment="Center">
-                <Border Style="{StaticResource BorderStyle}">
-                    <TextBox x:Name="loginTextBox" mah:TextBoxHelper.Watermark="Логин" Style="{StaticResource TextBoxStyle}"></TextBox>
-                </Border>
-                <Border Style="{StaticResource BorderStyle}">
-                    <PasswordBox x:Name="passwordTextBox" mah:TextBoxHelper.Watermark="Пароль" Style="{StaticResource PasswordBoxStyle}"></PasswordBox>
-                </Border>
-                <Border Visibility="{Binding PasswordAcceptVisibility}" Style="{StaticResource BorderStyle}">
-                    <PasswordBox x:Name="passwordAcceptTextBox" mah:TextBoxHelper.Watermark="Подтвердите пароль" Style="{StaticResource PasswordBoxStyle}"></PasswordBox>
-                </Border>
-                <Button Margin="5" Style="{StaticResource ButtonStyle}" Content="{Binding ButtonContent}" Height="50"></Button>
-                <TextBlock Text="{Binding LabelContent}" HorizontalAlignment="Center" Style="{StaticResource TextBlockClickableStyle}" FontWeight="ExtraBlack" MouseLeftButtonUp="TextBlock_MouseLeftButtonUp"></TextBlock>
-            </StackPanel>            
-        </StackPanel>
+        <mah:ProgressRing VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Foreground="{DynamicResource MahApps.Brushes.Accent2}" IsActive="{Binding IsLoading}"/>
+        <Grid x:Name="loginGrid">
+            <StackPanel VerticalAlignment="Center" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Image Width="300" Source="/logo.png"></Image>
+                <StackPanel Width="300" VerticalAlignment="Center">
+                    <Border Style="{StaticResource BorderStyle}">
+                        <TextBox x:Name="loginTextBox" mah:TextBoxHelper.Watermark="Логин" Style="{StaticResource TextBoxStyle}"></TextBox>
+                    </Border>
+                    <Border Style="{StaticResource BorderStyle}">
+                        <PasswordBox x:Name="passwordTextBox" mah:TextBoxHelper.Watermark="Пароль" Style="{StaticResource PasswordBoxStyle}"></PasswordBox>
+                    </Border>
+                    <Border Visibility="{Binding PasswordAcceptVisibility}" Style="{StaticResource BorderStyle}">
+                        <PasswordBox x:Name="passwordAcceptTextBox" mah:TextBoxHelper.Watermark="Подтвердите пароль" Style="{StaticResource PasswordBoxStyle}"></PasswordBox>
+                    </Border>
+                    <Button Margin="5" Click="Login_Click" Content="{Binding ButtonContent}" Height="50"></Button>
+                    <TextBlock Text="{Binding LabelContent}" HorizontalAlignment="Center" Style="{StaticResource TextBlockClickableStyle}" FontWeight="ExtraBlack" MouseLeftButtonUp="TextBlock_MouseLeftButtonUp"></TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
     </Grid>
 </mah:MetroWindow>
