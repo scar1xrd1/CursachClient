@@ -1,10 +1,19 @@
 ﻿using Client.Images;
 using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
+using System.Windows.Media.Imaging;
+using System.Xml.Linq;
+using ToastNotifications;
+using ToastNotifications.Core;
+using ToastNotifications.Lifetime;
+using ToastNotifications.Position;
 
 namespace Client
 {
@@ -30,7 +39,7 @@ namespace Client
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-
+            viewModel.isClosed = true;
         }
 
         private void TextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -72,16 +81,18 @@ namespace Client
                             loginGrid.Effect = null;
                             viewModel.IsLoading = false;
 
-                            MessageBox.Show("Не удалось войти");
+                            viewModel.ShowMessage("Неверный логин или пароль", MessageColor.Red);
                         }
-                    }
+                    } 
+                    else viewModel.ShowMessage("Минимум 6 символов", MessageColor.Red);  
                 }
+                else viewModel.ShowMessage("Минимум 6 символов", MessageColor.Red);
             }
             else
             {
-                if (loginTextBox.Text.Length >= 6)
+                if (loginTextBox.Text.Length >= 6 && !string.IsNullOrEmpty(loginTextBox.Text))
                 {
-                    if (passwordTextBox.Password.Length >= 6)
+                    if (passwordTextBox.Password.Length >= 6 && !string.IsNullOrEmpty(passwordTextBox.Password))
                     {
                         if (passwordTextBox.Password == passwordAcceptTextBox.Password)
                         {
@@ -93,7 +104,7 @@ namespace Client
                             bool result = await Task.Run(() => IsLoginExist(login));
                             if (result)
                             {
-                                //MessageBox.Show("Логин занят!");
+                                viewModel.ShowMessage("Логин занят", MessageColor.Red);
                                 loginGrid.Opacity = 1.0;
                                 loginGrid.Effect = null;
                                 viewModel.IsLoading = false;
@@ -115,14 +126,18 @@ namespace Client
                                 }
                                 catch (Exception ex) { MessageBox.Show(ex.Message); }
 
-                                //MessageBox.Show("логин свободн");
+                                viewModel.ShowMessage("Аккаунт создан", MessageColor.Green);
                                 loginGrid.Opacity = 1.0;
                                 loginGrid.Effect = null;
                                 viewModel.IsLoading = false;
+                                TextBlock_MouseLeftButtonUp(messageTextBlock, new MouseButtonEventArgs(Mouse.PrimaryDevice, 1, MouseButton.Left));
                             }
                         }
+                        else viewModel.ShowMessage("Пароли не совпадают", MessageColor.Red);
                     }
+                    else viewModel.ShowMessage("Минимум 6 символов", MessageColor.Red);
                 }
+                else viewModel.ShowMessage("Минимум 6 символов", MessageColor.Red);
             }
         }
 
@@ -152,7 +167,7 @@ namespace Client
             return false;
         }
 
-        static void ApplyBlurEffect(UIElement target, int radius)
+        void ApplyBlurEffect(UIElement target, int radius)
         {
             if (target == null) return;
             BlurEffect blurEffect = new BlurEffect();

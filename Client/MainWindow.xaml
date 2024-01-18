@@ -84,11 +84,14 @@
     </mah:MetroWindow.Resources>
 
     <Grid>
+        
+        
         <mah:ProgressRing VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Foreground="{DynamicResource MahApps.Brushes.Accent2}" IsActive="{Binding IsLoading}"/>
         <Grid x:Name="loginGrid">
-            <StackPanel VerticalAlignment="Center" Orientation="Horizontal" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Image Width="300" Source="/logo.png"></Image>
                 <StackPanel Width="300" VerticalAlignment="Center">
+                    <TextBlock FontSize="16" Margin="10 0 0 0" Opacity="{Binding MessageOpacity}" FontWeight="UltraBold" Foreground="{Binding MessageColor}" Text="{Binding MessageText}" x:Name="messageTextBlock"></TextBlock>
                     <Border Style="{StaticResource BorderStyle}">
                         <TextBox x:Name="loginTextBox" mah:TextBoxHelper.Watermark="Логин" Style="{StaticResource TextBoxStyle}"></TextBox>
                     </Border>
