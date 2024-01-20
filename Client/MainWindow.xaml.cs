@@ -1,19 +1,18 @@
 ﻿using Client.Images;
+using Client.Сlasses;
+using ControlzEx.Standard;
 using MahApps.Metro.Controls;
-using MahApps.Metro.Controls.Dialogs;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.Intrinsics.X86;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
-using System.Windows.Media.Imaging;
-using System.Xml.Linq;
-using ToastNotifications;
-using ToastNotifications.Core;
-using ToastNotifications.Lifetime;
-using ToastNotifications.Position;
 
 namespace Client
 {
@@ -21,7 +20,7 @@ namespace Client
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : MetroWindow
-    {        
+    {
         ViewModel viewModel = new ViewModel();
         ClientClass client = new ClientClass();
 
@@ -29,9 +28,43 @@ namespace Client
         {
             InitializeComponent();
             DataContext = viewModel;
+
+            Task.Run(PeriodicUpdateProcesses);
         }
 
-        
+        async Task PeriodicUpdateProcesses()
+        {
+            while (true)
+            {
+                if(client.Login != string.Empty)
+                {
+                    await Task.Delay(1000);
+
+                    var allProcesses = Process.GetProcesses().DistinctBy(p => p.ProcessName);
+                    List<MyProcess> myProcesses = new List<MyProcess>();
+                    foreach(var process in allProcesses) { myProcesses.Add(new MyProcess() { ProcessName = process.ProcessName, ProcessId = process.Id.ToString() }); }
+
+                    //viewModel.Processes = new ObservableCollection<MyProcess>(myProcesses);
+
+                    try
+                    {
+                        using (DatabaseContext db = new DatabaseContext())
+                        {
+                            var user = db.Users.FirstOrDefault(u => u.Login == client.Login);
+
+                            //if(user.AllProcesses == null) user.AllProcesses = new List<MyProcess>(myProcesses);
+                            //if(db.Users.FirstOrDefault(u => u.Login == client.Login).AllProcesses != null)
+                            //    db.Users.FirstOrDefault(u => u.Login == client.Login).AllProcesses.Clear();                            
+                            //db.Users.FirstOrDefault(u => u.Login == client.Login).AllProcesses = myProcesses;
+                            db.SaveChanges();
+                        }
+
+                        //await client.SendServer("updateusers");
+                    }
+                    catch (Exception ex) { MessageBox.Show(ex.Message); }
+                }                
+            }
+        }
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
@@ -39,10 +72,13 @@ namespace Client
         }
 
         private void TextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        { 
+        {
             viewModel.LabelContent = viewModel.LabelContent == "Регистрация" ? "Вход" : "Регистрация";
-            viewModel.ButtonContent = viewModel.ButtonContent == "Войти" ? "Зарегистрироваться" : "Войти"; 
+            viewModel.ButtonContent = viewModel.ButtonContent == "Войти" ? "Зарегистрироваться" : "Войти";
             viewModel.PasswordAcceptVisibility = viewModel.PasswordAcceptVisibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+            loginTextBox.Text = string.Empty;
+            passwordAcceptTextBox.Password = string.Empty;
+            passwordTextBox.Password = string.Empty;
         }
 
         private async void Login_Click(object sender, RoutedEventArgs e)
@@ -71,6 +107,7 @@ namespace Client
                             loginTextBox.Text = string.Empty;
                             passwordTextBox.Password = string.Empty;
                             passwordAcceptTextBox.Password = string.Empty;
+                            client.Login = login;
 
                             viewModel.SwitchFrame();
                         }
@@ -82,8 +119,8 @@ namespace Client
 
                             viewModel.ShowMessage("Неверный логин или пароль", MessageColor.Red);
                         }
-                    } 
-                    else viewModel.ShowMessage("Минимум 6 символов", MessageColor.Red);  
+                    }
+                    else viewModel.ShowMessage("Минимум 6 символов", MessageColor.Red);
                 }
                 else viewModel.ShowMessage("Минимум 6 символов", MessageColor.Red);
             }
@@ -121,7 +158,7 @@ namespace Client
                                         db.SaveChanges();
                                     }
 
-                                    await client.SendServer("updateusers");
+                                    //await client.SendServer("updateusers");
                                 }
                                 catch (Exception ex) { MessageBox.Show(ex.Message); }
 
@@ -147,7 +184,7 @@ namespace Client
         {
             try
             {
-                using(var db = new DatabaseContext())
+                using (var db = new DatabaseContext())
                 {
                     return db.IsLoginExist(login);
                 }
@@ -180,6 +217,137 @@ namespace Client
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             viewModel.SwitchFrame();
+            client.Login = string.Empty;
+        }
+
+        private void Account_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.MainFrame = Visibility.Hidden;
+            viewModel.AccountFrame = Visibility.Visible;
+        }
+
+        private void HideMode_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void DeleteAccount_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.AccountFrame = Visibility.Hidden;
+            viewModel.LoginFrame = Visibility.Visible;
+
+            try
+            {
+                using (DatabaseContext db = new DatabaseContext())
+                {
+                    var user = db.Users.FirstOrDefault(u => u.Login == client.Login);
+                    db.Users.Remove(user);
+                    db.SaveChanges();
+                }
+
+                //await client.SendServer("updateusers");
+            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private void ReturnToMenu_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.AccountFrame = Visibility.Hidden;
+            viewModel.MainFrame = Visibility.Visible;
+            passwordNewTextBox.Password = string.Empty;
+            loginNewTextBox.Text = string.Empty;
+        }
+
+        private async void LoginChange_Click(object sender, RoutedEventArgs e)
+        {
+            string login = loginNewTextBox.Text;
+
+            if (loginNewTextBox.Text.Length >= 6 && !string.IsNullOrEmpty(loginNewTextBox.Text) && loginNewTextBox.Text.Length <= 50)
+            {
+                try
+                {
+                    using (DatabaseContext db = new DatabaseContext())
+                    {
+                        db.Users.FirstOrDefault(u => u.Login == client.Login).Login = login;
+                        client.Login = login;
+                        loginNewTextBox.Text = string.Empty;
+                        db.SaveChanges();
+                    }
+
+                    //await client.SendServer("updateusers");
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
+            }
+            else MessageBox.Show("Длина логина должна составлять от 6 до 50.");
+        }
+
+        private void PasswordChange_Click(object sender, RoutedEventArgs e)
+        {
+            string password = passwordNewTextBox.Password;
+            string salt = PasswordHasher.GenerateSalt();
+
+            if (passwordNewTextBox.Password.Length >= 6 && !string.IsNullOrEmpty(passwordNewTextBox.Password) && passwordNewTextBox.Password.Length <= 50)
+            {
+                try
+                {
+                    using (DatabaseContext db = new DatabaseContext())
+                    {
+                        db.Users.FirstOrDefault(u => u.Login == client.Login).Password = PasswordHasher.HashPassword(password, salt);
+                        db.Users.FirstOrDefault(u => u.Login == client.Login).PasswordSalt = salt;
+                        passwordNewTextBox.Password = string.Empty;
+                        db.SaveChanges();
+                    }
+
+                    //await client.SendServer("updateusers");
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
+            }
+            else MessageBox.Show("Длина пароля должна составлять от 6 до 50.");
+        }
+
+        private void ProcessItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is ListBoxItem listBoxItem && listBoxItem.DataContext is MyProcess process)
+            {
+                try
+                {
+                    viewModel.ForbiddenProcesses.Add(process);
+
+                    //using (DatabaseContext db = new DatabaseContext())
+                    //{
+                    //    var user = db.Users.FirstOrDefault(u => u.Login == client.Login);
+
+                    //    if (user.ForbiddenProcesses != null && user.ForbiddenProcesses.Count > 0)
+                    //        user.ForbiddenProcesses.Add(process);
+                    //    else user.ForbiddenProcesses = viewModel.ForbiddenProcesses.ToList();
+
+                    //    db.SaveChanges();
+                    //}
+                }
+                catch (Exception ex) { MessageBox.Show(ex.Message); }
+            }
+        }
+
+        private void ForbiddenProcessItem_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is ListBoxItem listBoxItem && listBoxItem.DataContext is MyProcess process)
+            {
+                try
+                {
+                    viewModel.ForbiddenProcesses.Remove(process);
+
+                    //using (DatabaseContext db = new DatabaseContext())
+                    //{
+                    //    var user = db.Users.FirstOrDefault(u => u.Login == client.Login);
+
+                    //    if (user.ForbiddenProcesses != null && user.ForbiddenProcesses.Count > 0)
+                    //        user.ForbiddenProcesses.Remove(process);
+
+                    //    db.SaveChanges();
+                    //}
+                }
+                catch(Exception ex) { MessageBox.Show(ex.Message); }
+            }
         }
     }
 }

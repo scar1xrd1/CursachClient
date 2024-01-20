@@ -1,10 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Client.Сlasses;
+using Microsoft.EntityFrameworkCore;
 
 namespace Client.Images
 {
@@ -20,7 +15,7 @@ namespace Client.Images
 
         public bool IsLoginExist(string login)
         {
-            if(Users != null && Users.Count() >= 1)
+            if (Users != null && Users.Count() >= 1)
             {
                 var user = Users.FirstOrDefault(u => u.Login == login);
                 if (user == null) return false;
@@ -47,6 +42,17 @@ namespace Client.Images
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Login)
                 .IsUnique();
+
+            //modelBuilder.Entity<User>()
+            //    .HasKey(u => u.Id);
+
+            //modelBuilder.Entity<MyProcess>()
+            //    .HasKey(p => p.Id);
+
+            //modelBuilder.Entity<MyProcess>()
+            //    .HasOne(p => p.User)
+            //    .WithMany(u => u.AllProcesses)
+            //    .HasForeignKey(p => p.UserId);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -1,4 +1,7 @@
-﻿using System.ComponentModel;
+﻿using Client.Сlasses;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
@@ -10,9 +13,12 @@ namespace Client
         CancellationTokenSource? cancellationTokenSource;
         public bool isClosed = false;
 
+        ObservableCollection<MyProcess>? processes = new ObservableCollection<MyProcess>();
+        ObservableCollection<MyProcess>? forbiddenProcesses = new ObservableCollection<MyProcess>();
         Visibility passwordAcceptVisibility = Visibility.Collapsed;
         Visibility loginFrame = Visibility.Visible;
         Visibility mainFrame = Visibility.Hidden;
+        Visibility accountFrame = Visibility.Hidden;
         string labelContent = "Регистрация";
         string buttonContent = "Войти";
         string messageText = "";
@@ -20,9 +26,12 @@ namespace Client
         SolidColorBrush? messageColor;
         bool isLoading = false;
 
+        public ObservableCollection<MyProcess>? Processes { get => processes; set { processes = value; OnPropertyChanged(nameof(Processes)); } }
+        public ObservableCollection<MyProcess>? ForbiddenProcesses { get => forbiddenProcesses; set { forbiddenProcesses = value; OnPropertyChanged(nameof(ForbiddenProcesses)); } }
         public Visibility PasswordAcceptVisibility { get => passwordAcceptVisibility; set { passwordAcceptVisibility = value; OnPropertyChanged(nameof(PasswordAcceptVisibility)); } }
         public Visibility LoginFrame { get => loginFrame; set { loginFrame = value; OnPropertyChanged(nameof(LoginFrame)); } }
         public Visibility MainFrame { get => mainFrame; set { mainFrame = value; OnPropertyChanged(nameof(MainFrame)); } }
+        public Visibility AccountFrame { get => accountFrame; set { accountFrame = value; OnPropertyChanged(nameof(AccountFrame)); } }
         public string LabelContent { get => labelContent; set{ labelContent = value; OnPropertyChanged(nameof(LabelContent)); } }
         public string MessageText { get => messageText; set{ messageText = value; OnPropertyChanged(nameof(MessageText)); } }
         public SolidColorBrush? MessageColor { get => messageColor; set{ messageColor = value; OnPropertyChanged(nameof(MessageColor)); } }
