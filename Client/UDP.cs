@@ -14,25 +14,23 @@ namespace Client
         public string ServerPort { get; set; }
         public string LocalPort { get; set; }
         private UdpClient udp;
-        private IPEndPoint serverEP;
+        private IPEndPoint? serverEP;
 
         public UDP()
         {
             Ip = "127.0.0.1";
-            ServerPort = "55961";
-            LocalPort = "55960";
+            LocalPort = "55961";
+            ServerPort = "55960";
 
-            udp = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 55960));
+            udp = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 55961));
         }
 
         public UDP(string ip, string serverport, string localport)
         {
             Ip = ip;
-            ServerPort = serverport;
             LocalPort = localport;
-
-            udp = new UdpClient(new IPEndPoint(IPAddress.Parse(Ip), int.Parse(ServerPort)));
-            //remoteEP = new IPEndPoint(IPAddress.Parse(Ip), int.Parse(LocalPort));
+            ServerPort = serverport;
+            udp = new UdpClient(new IPEndPoint(IPAddress.Parse(Ip), int.Parse(LocalPort)));
         }
 
         public void SetPoint(string ip, string serverport, string localport)
@@ -40,19 +38,8 @@ namespace Client
             Ip = ip;
             ServerPort = serverport;
             LocalPort = localport;
+            udp = new UdpClient(new IPEndPoint(IPAddress.Parse(Ip), int.Parse(LocalPort)));
         }
-
-        //public string Receive()
-        //{
-        //    string feedback = "";
-        //    try
-        //    {
-        //        remoteEP = new IPEndPoint(IPAddress.Parse(Ip), int.Parse(LocalPort));
-        //        udp.Receive(ref remoteEP);
-        //    }
-        //    catch (Exception e) { feedback = $"Ошибка получения данных: {e.Message}"; }
-        //    return feedback;
-        //}
 
         public async Task<string> SendAsync(string data)
         {
@@ -63,6 +50,18 @@ namespace Client
                 await udp.SendAsync(Encoding.UTF8.GetBytes(data), serverEP);
             }
             catch (Exception e) { feedback = $"Ошибка отправки данных: {e.Message}"; }
+            return feedback;
+        }
+
+        public async Task<string> ReceiveAsync()
+        {
+            string feedback = "";
+            try
+            {
+                var result = await udp.ReceiveAsync();
+                feedback = Encoding.UTF8.GetString(result.Buffer);
+            }
+            catch (Exception e) { feedback = $"Ошибка получения данных: {e.Message}"; }
             return feedback;
         }
     }

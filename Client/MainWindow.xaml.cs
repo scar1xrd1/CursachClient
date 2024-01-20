@@ -21,9 +21,9 @@ namespace Client
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : MetroWindow
-    {
-        UDP udp = new UDP();
+    {        
         ViewModel viewModel = new ViewModel();
+        ClientClass client = new ClientClass();
 
         public MainWindow()
         {
@@ -31,11 +31,7 @@ namespace Client
             DataContext = viewModel;
         }
 
-        async Task SendServer(string message)
-        {
-            string feedback = await udp.SendAsync(message);
-            //MessageBox.Show(feedback);
-        }
+        
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
@@ -55,9 +51,9 @@ namespace Client
 
             if (content == "Войти")
             {
-                if (loginTextBox.Text.Length >= 6)
+                if (loginTextBox.Text.Length >= 6 && loginTextBox.Text.Length <= 50)
                 {
-                    if (passwordTextBox.Password.Length >= 6)
+                    if (passwordTextBox.Password.Length >= 6 && passwordTextBox.Password.Length <= 50)
                     {
                         loginGrid.Opacity = 0.3;
                         ApplyBlurEffect(loginGrid, 15);
@@ -72,8 +68,11 @@ namespace Client
                             loginGrid.Opacity = 1.0;
                             loginGrid.Effect = null;
                             viewModel.IsLoading = false;
+                            loginTextBox.Text = string.Empty;
+                            passwordTextBox.Password = string.Empty;
+                            passwordAcceptTextBox.Password = string.Empty;
 
-                            MessageBox.Show("Успешный вход");
+                            viewModel.SwitchFrame();
                         }
                         else
                         {
@@ -90,9 +89,9 @@ namespace Client
             }
             else
             {
-                if (loginTextBox.Text.Length >= 6 && !string.IsNullOrEmpty(loginTextBox.Text))
+                if (loginTextBox.Text.Length >= 6 && !string.IsNullOrEmpty(loginTextBox.Text) && loginTextBox.Text.Length <= 50)
                 {
-                    if (passwordTextBox.Password.Length >= 6 && !string.IsNullOrEmpty(passwordTextBox.Password))
+                    if (passwordTextBox.Password.Length >= 6 && !string.IsNullOrEmpty(passwordTextBox.Password) && passwordTextBox.Password.Length <= 50)
                     {
                         if (passwordTextBox.Password == passwordAcceptTextBox.Password)
                         {
@@ -122,10 +121,13 @@ namespace Client
                                         db.SaveChanges();
                                     }
 
-                                    await SendServer("updateusers");
+                                    await client.SendServer("updateusers");
                                 }
                                 catch (Exception ex) { MessageBox.Show(ex.Message); }
 
+                                loginTextBox.Text = string.Empty;
+                                passwordTextBox.Password = string.Empty;
+                                passwordAcceptTextBox.Password = string.Empty;
                                 viewModel.ShowMessage("Аккаунт создан", MessageColor.Green);
                                 loginGrid.Opacity = 1.0;
                                 loginGrid.Effect = null;
@@ -173,6 +175,11 @@ namespace Client
             BlurEffect blurEffect = new BlurEffect();
             blurEffect.Radius = radius;
             target.Effect = blurEffect;
+        }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.SwitchFrame();
         }
     }
 }

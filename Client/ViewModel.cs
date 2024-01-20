@@ -11,6 +11,8 @@ namespace Client
         public bool isClosed = false;
 
         Visibility passwordAcceptVisibility = Visibility.Collapsed;
+        Visibility loginFrame = Visibility.Visible;
+        Visibility mainFrame = Visibility.Hidden;
         string labelContent = "Регистрация";
         string buttonContent = "Войти";
         string messageText = "";
@@ -19,6 +21,8 @@ namespace Client
         bool isLoading = false;
 
         public Visibility PasswordAcceptVisibility { get => passwordAcceptVisibility; set { passwordAcceptVisibility = value; OnPropertyChanged(nameof(PasswordAcceptVisibility)); } }
+        public Visibility LoginFrame { get => loginFrame; set { loginFrame = value; OnPropertyChanged(nameof(LoginFrame)); } }
+        public Visibility MainFrame { get => mainFrame; set { mainFrame = value; OnPropertyChanged(nameof(MainFrame)); } }
         public string LabelContent { get => labelContent; set{ labelContent = value; OnPropertyChanged(nameof(LabelContent)); } }
         public string MessageText { get => messageText; set{ messageText = value; OnPropertyChanged(nameof(MessageText)); } }
         public SolidColorBrush? MessageColor { get => messageColor; set{ messageColor = value; OnPropertyChanged(nameof(MessageColor)); } }
@@ -36,6 +40,20 @@ namespace Client
             cancellationTokenSource = new CancellationTokenSource();
             try { await Task.Run(() => StartMessageFadeAnimation(cancellationTokenSource.Token)); }
             catch (OperationCanceledException) { }
+        }
+
+        public void SwitchFrame()
+        {
+            if(loginFrame == Visibility.Visible)
+            {
+                LoginFrame = Visibility.Hidden;
+                MainFrame = Visibility.Visible;
+            }
+            else
+            {
+                MainFrame = Visibility.Hidden;
+                LoginFrame = Visibility.Visible;                
+            }
         }
 
         void StartMessageFadeAnimation(CancellationToken cancellationToken)

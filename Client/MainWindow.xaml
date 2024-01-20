@@ -6,7 +6,7 @@
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:wag="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="CLIENT" Height="550" Width="1000" Background="#202020" Closing="Window_Closing"
+        Title="client" Height="550" Width="1000" Background="#202020" Closing="Window_Closing"
         TitleForeground="#505050" ShowTitleBar="False" BorderThickness="0" GlowBrush="Black"
         WindowTransitionsEnabled="False"
         WindowStartupLocation="CenterScreen">
@@ -83,11 +83,77 @@
         </ResourceDictionary>
     </mah:MetroWindow.Resources>
 
-    <Grid>
-        
-        
+    <Grid>    
         <mah:ProgressRing VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Foreground="{DynamicResource MahApps.Brushes.Accent2}" IsActive="{Binding IsLoading}"/>
-        <Grid x:Name="loginGrid">
+
+        <Grid Visibility="{Binding MainFrame}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Label HorizontalAlignment="Center" FontSize="24" FontWeight="Bold">Запрещенные процессы</Label>
+            <Border Grid.Column="0" Background="#303030" Margin="10 50 10 10" CornerRadius="20">
+                <Grid>
+                    <ListBox Margin="5" Background="#0000" x:Name="forbiddenListBox">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="border" Background="#252525" CornerRadius="10" Margin="2">
+                                                <Grid Background="{TemplateBinding Background}">
+                                                    <!--<mah:ProgressRing VerticalAlignment="Center" Width="25" Height="25" HorizontalAlignment="Center" Background="#0000" Foreground="{DynamicResource MahApps.Brushes.Accent2}" IsActive="True"/>-->
+                                                    <!--<Label VerticalAlignment="Center" FontSize="12" HorizontalAlignment="Left" Margin="5 0 0 0" Content="{Binding Login}"/>-->
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="border" Property="Background" Value="#454545"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <Label Grid.Column="1" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold">Активные процессы</Label>
+            <Border Grid.Column="1" Background="#303030" Margin="10 50 10 10" CornerRadius="20">
+                <Grid>
+                    <ListBox Margin="5" Background="#0000" x:Name="processListBox">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="border" Background="#252525" CornerRadius="10" Margin="2">
+                                                <Grid Background="{TemplateBinding Background}">
+                                                    <!--<mah:ProgressRing VerticalAlignment="Center" Width="25" Height="25" HorizontalAlignment="Center" Background="#0000" Foreground="{DynamicResource MahApps.Brushes.Accent2}" IsActive="True"/>-->
+                                                    <!--<Label VerticalAlignment="Center" FontSize="12" HorizontalAlignment="Left" Margin="5 0 0 0" Content="{Binding Login}"/>-->
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="border" Property="Background" Value="#454545"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <Button Grid.Column="1" Margin="5" Click="Exit_Click" Height="50" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="100">Выйти</Button>
+        </Grid>
+
+        <Grid x:Name="loginGrid" Visibility="{Binding LoginFrame}"> <!---->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Image Width="300" Source="/logo.png"></Image>
                 <StackPanel Width="300" VerticalAlignment="Center">
