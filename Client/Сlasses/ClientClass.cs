@@ -11,7 +11,6 @@ namespace Client
     {
         public UDP udp = new UDP();
         public string? Login { get; set; } = string.Empty;
-
         public async Task<string> SendServer(string message) => await udp.SendAsync(message);
     }
 }

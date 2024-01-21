@@ -8,7 +8,7 @@
         Title="client" Height="550" Width="1000" Background="#202020" Closing="Window_Closing"
         TitleForeground="#505050" ShowTitleBar="False" BorderThickness="0" GlowBrush="Black"
         WindowTransitionsEnabled="False"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" Icon="/logo.png">
 
     <mah:MetroWindow.Resources>
         <ResourceDictionary>
@@ -25,7 +25,7 @@
                 <Setter Property="BorderBrush" Value="#404040"></Setter>
                 <Setter Property="Margin" Value="5"></Setter>
             </Style>
-            
+
             <Style TargetType="Button">
                 <Setter Property="Background" Value="#404040"></Setter>
                 <Setter Property="Foreground" Value="#e3e3e3"></Setter>
@@ -56,7 +56,7 @@
                     </EventTrigger>
                 </Style.Triggers>
             </Style>
-            
+
             <Style x:Key="TextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                 <Setter Property="BorderThickness" Value="0"></Setter>
                 <Setter Property="Margin" Value="7"></Setter>
@@ -70,7 +70,7 @@
                 <Setter Property="Background" Value="#0000"></Setter>
                 <Setter Property="FontSize" Value="20"></Setter>
             </Style>
-            
+
             <Style x:Key="TextBlockClickableStyle" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="#0077b3"/>
                 <Style.Triggers>
@@ -82,10 +82,14 @@
         </ResourceDictionary>
     </mah:MetroWindow.Resources>
 
-    <Grid>    
-        <mah:ProgressRing VerticalAlignment="Center" HorizontalAlignment="Center" Width="100" Foreground="{DynamicResource MahApps.Brushes.Accent2}" IsActive="{Binding IsLoading}"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="627*"/>
+            <ColumnDefinition Width="373*"/>
+        </Grid.ColumnDefinitions>
+        <mah:ProgressRing HorizontalAlignment="Left" Width="100" Foreground="{DynamicResource MahApps.Brushes.Accent2}" IsActive="{Binding IsLoading}" Margin="450,0,0,0"/>
 
-        <Grid Visibility="{Binding AccountFrame}">
+        <Grid Visibility="{Binding AccountFrame}" Grid.ColumnSpan="2">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Image Width="300" Source="/logo.png"></Image>
                 <StackPanel VerticalAlignment="Center">
@@ -104,22 +108,22 @@
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Button Margin="5" Click="DeleteAccount_Click" Height="50" Width="150">Удалить аккаунт</Button>
                         <Button Margin="5" Click="ReturnToMenu_Click" Height="50" Width="150">Назад</Button>
-                    </StackPanel>                    
-                </StackPanel>                
-            </StackPanel>            
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
         </Grid>
 
-        <StackPanel Visibility="{Binding MainFrame}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal">
+        <StackPanel Visibility="{Binding MainFrame}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" Grid.ColumnSpan="2" Margin="260,0,0,0">
             <Button Margin="5" Click="HideMode_Click" Height="50" Width="150">Скрытый режим</Button>
             <Button Margin="5" Click="Account_Click" Height="50" Width="150">Аккаунт</Button>
             <Button Margin="5" Click="Exit_Click" Height="50" Width="150">Выйти</Button>
         </StackPanel>
-        <Grid Visibility="{Binding MainFrame}">
+        <Grid Visibility="{Binding MainFrame}" Grid.ColumnSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
-            </Grid.ColumnDefinitions>            
-            
+            </Grid.ColumnDefinitions>
+
             <Label HorizontalAlignment="Center" Margin="20" FontSize="24" FontWeight="Bold">Запрещенные процессы</Label>
             <Border Grid.Column="0" Background="#303030" Margin="5 70 5 70" CornerRadius="20">
                 <Grid>
@@ -186,7 +190,8 @@
             </Border>
         </Grid>
 
-        <Grid x:Name="loginGrid" Visibility="{Binding LoginFrame}"> <!---->
+        <Grid x:Name="loginGrid" Visibility="{Binding LoginFrame}" Grid.ColumnSpan="2">
+            <!---->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Image Width="300" Source="/logo.png"></Image>
                 <StackPanel Width="300" VerticalAlignment="Center">
