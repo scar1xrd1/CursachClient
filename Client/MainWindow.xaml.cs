@@ -2,6 +2,7 @@
 using Client.Сlasses;
 using ControlzEx.Standard;
 using MahApps.Metro.Controls;
+using Microsoft.IdentityModel.Tokens;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -24,12 +25,64 @@ namespace Client
         ViewModel viewModel = new ViewModel();
         ClientClass client = new ClientClass();
 
+        CancellationTokenSource cts = new CancellationTokenSource();
+        CancellationToken token;
+
         public MainWindow()
         {
             InitializeComponent();
             DataContext = viewModel;
+            token = cts.Token;
+            StartListen();
 
             Task.Run(PeriodicUpdateProcesses);
+            Task.Run(StartKillProcesses);
+        }
+
+        async Task StartKillProcesses()
+        {
+            while (true)
+            {
+                if (client.Login != null)
+                {
+                    try
+                    {
+                        List<MyProcess> processes = new List<MyProcess>();
+                        Application.Current.Dispatcher.Invoke(() => { processes = viewModel.ForbiddenProcesses.ToList(); });
+                        foreach (var process in processes)
+                        {
+                            if(process.ProcessName != "Client")
+                            {
+                                var processToKill = Process.GetProcessesByName(process.ProcessName);
+                                foreach (var kill in processToKill)
+                                    kill.Kill();
+                            }                            
+                        }
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        async void StartListen()
+        {
+            await Task.Run(StartListenAsync);
+        }
+
+        async Task StartListenAsync()
+        {
+            try
+            {
+                while (true)
+                {
+                    token.ThrowIfCancellationRequested();
+                    string received = await client.udp.ReceiveAsync();
+                    //MessageBox.Show(received);
+
+                    if (received.Length > 6 && received[..6] == "unhide" && received[6..] == client.Login) Application.Current.Dispatcher.Invoke(Show);
+                }
+            }
+            catch (OperationCanceledException) { }
         }
 
         async Task PeriodicUpdateProcesses()
@@ -51,6 +104,12 @@ namespace Client
                         using (DatabaseContext db = new DatabaseContext())
                         {
                             var user = db.Users.FirstOrDefault(u => u.Login == client.Login);
+                            user.AllProcesses = JsonSerializer.Serialize(myProcesses);
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                viewModel.Processes = new ObservableCollection<MyProcess>(user.GetAllProcesses());
+                                if (user.ForbiddenProcesses != null) viewModel.ForbiddenProcesses = new ObservableCollection<MyProcess>(user.GetForbiddenProcesses());
+                            });
 
                             //if(user.AllProcesses == null) user.AllProcesses = new List<MyProcess>(myProcesses);
                             //if(db.Users.FirstOrDefault(u => u.Login == client.Login).AllProcesses != null)
@@ -61,7 +120,7 @@ namespace Client
 
                         //await client.SendServer("updateusers");
                     }
-                    catch (Exception ex) { MessageBox.Show(ex.Message); }
+                    catch { }
                 }                
             }
         }
@@ -228,7 +287,7 @@ namespace Client
 
         private void HideMode_Click(object sender, RoutedEventArgs e)
         {
-
+            Hide();
         }
 
         private void DeleteAccount_Click(object sender, RoutedEventArgs e)
@@ -311,7 +370,32 @@ namespace Client
             {
                 try
                 {
-                    viewModel.ForbiddenProcesses.Add(process);
+                    //viewModel.ForbiddenProcesses.Add(process);
+
+                    if (process.ProcessName == "Client")
+                    {
+                        MessageBox.Show("Это шутка какая-то?");
+                        return;
+                    }
+
+                    Task.Run(() =>
+                    {
+                        using (var db = new DatabaseContext())
+                        {
+                            var user = db.Users.FirstOrDefault(u => u.Login == client.Login);
+                            if (user.ForbiddenProcesses != null)
+                            {
+                                var forbProcesses = user.GetForbiddenProcesses();
+                                if (forbProcesses.FirstOrDefault(p => p.ProcessName == process.ProcessName) != null) return;
+                                forbProcesses.Add(process);
+                                user.ForbiddenProcesses = JsonSerializer.Serialize(forbProcesses);
+                            }
+                            else user.ForbiddenProcesses = JsonSerializer.Serialize(new List<MyProcess>() { process });
+                            Application.Current.Dispatcher.Invoke(() => { viewModel.ForbiddenProcesses = new ObservableCollection<MyProcess>(user.GetForbiddenProcesses()); });
+                            db.SaveChanges();
+                        }
+                    });
+
 
                     //using (DatabaseContext db = new DatabaseContext())
                     //{
@@ -324,7 +408,7 @@ namespace Client
                     //    db.SaveChanges();
                     //}
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message); }
+                catch { }
             }
         }
 
@@ -334,7 +418,24 @@ namespace Client
             {
                 try
                 {
-                    viewModel.ForbiddenProcesses.Remove(process);
+                    //viewModel.ForbiddenProcesses.Remove(process);
+                    Task.Run(() =>
+                    {
+                        using (var db = new DatabaseContext())
+                        {
+                            var user = db.Users.FirstOrDefault(u => u.Login == client.Login);
+                            if (user.ForbiddenProcesses != null)
+                            {
+                                var forbProcesses = user.GetForbiddenProcesses();
+                                var result = forbProcesses.FirstOrDefault(p => p.ProcessName == process.ProcessName);
+                                forbProcesses.Remove(result);
+                                user.ForbiddenProcesses = JsonSerializer.Serialize(forbProcesses);
+                            }
+                            Application.Current.Dispatcher.Invoke(() => { viewModel.ForbiddenProcesses = new ObservableCollection<MyProcess>(user.GetForbiddenProcesses()); });
+                            db.SaveChanges();
+                        }
+                    });
+
 
                     //using (DatabaseContext db = new DatabaseContext())
                     //{
@@ -346,7 +447,7 @@ namespace Client
                     //    db.SaveChanges();
                     //}
                 }
-                catch(Exception ex) { MessageBox.Show(ex.Message); }
+                catch { }
             }
         }
     }

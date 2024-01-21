@@ -9,7 +9,7 @@ namespace Client
 {
     public class ClientClass
     {
-        UDP udp = new UDP();
+        public UDP udp = new UDP();
         public string? Login { get; set; } = string.Empty;
 
         public async Task<string> SendServer(string message) => await udp.SendAsync(message);
